@@ -1,0 +1,5 @@
+timeout=$((SECONDS+60))
+while [ $SECONDS -lt $timeout ]; do
+    killall studentd
+    sleep 1
+done
