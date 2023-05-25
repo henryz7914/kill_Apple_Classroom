@@ -1,6 +1,6 @@
 # kill_Apple_Classroom
-<h5>此mac快捷操作可以在没有sudo权限时且会一直保持互联网可访问的情况下停止Apple Classroom的屏幕共享/信息上传进程(仅限60秒) </h5>
-<h5>This mac shortcut kills Apple Classroom's screen sharing/information upload process without sudo privileges and will always keep the internet accessible (60 seconds only).</h5>
+<h5>此mac快捷操作可以在没有sudo权限时且会一直保持互联网可访问的情况下停止Apple Classroom的屏幕共享/信息上传进程</h5>
+<h5>This mac shortcut kills Apple Classroom's screen sharing/information upload process without sudo privileges and will always keep the internet accessible.</h5>
 <h5>老师端classroom将会显示您的设备正处于下线状态</h5>
 <h5>The teacher's classroom app will show that your device is offline.</h5>
 <h5>就像这样：</h5>
