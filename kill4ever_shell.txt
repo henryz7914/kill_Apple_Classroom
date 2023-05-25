@@ -1,0 +1,4 @@
+while true; do
+    killall studentd
+	sleep 2
+done
