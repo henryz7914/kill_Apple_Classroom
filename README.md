@@ -1,6 +1,6 @@
 # kill_Apple_Classroom
-<h2>Ki11_Apple_Classroom.app.zip文件只可让classroom停止运行60秒，下载Ki11_Apple_Classroom 4ever.app.zip版本来使classroom持续停止运行</h2>
-<h2>The Ki11_Apple_Classroom.app.zip file can only stop the classroom for 60 seconds, download the Ki11_Apple_Classroom 4ever.app.zip version to stop the classroom continuously</h2>
+<h3>!!Ki11_Apple_Classroom.app.zip文件只可让classroom停止运行60秒，下载Ki11_Apple_Classroom 4ever.app.zip版本来使classroom持续停止运行!!</h3>
+<h3>!!The Ki11_Apple_Classroom.app.zip file can only stop the classroom for 60 seconds, download the Ki11_Apple_Classroom 4ever.app.zip version to stop the classroom continuously!!</h3>
 <h5>此mac快捷操作可以在没有sudo权限时且会一直保持互联网可访问的情况下停止Apple Classroom的屏幕共享/信息上传进程</h5>
 <h5>This mac shortcut kills Apple Classroom's screen sharing/information upload process without sudo privileges and will always keep the internet accessible.</h5>
 <h5>老师端classroom将会显示您的设备正处于下线状态</h5>
