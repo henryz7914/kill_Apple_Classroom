@@ -49,12 +49,8 @@
             grid-template-columns: repeat(4, 1fr); 
             gap: 0;
             transform-origin: left top;
-            transition: width 0.08s ease-out, opacity 0.25s ease-in-out;
+            transition: width 0.08s ease-out;
             min-width: 100%;
-        }
-
-        .gallery-container.layout-transitioning {
-            opacity: 0.4;
         }
 
         .year-header {
@@ -535,15 +531,14 @@
     // --- APPLE PHOTOS-STYLE ZOOM LOGIC ---
 
     /**
-     * Maps the slider value (20-100) to a non-linear column count (3-10).
+     * Maps the slider value (20-100) to a linear column count (3-10).
      */
     function mapSliderToColumns(sliderValue) {
         const normalized = (sliderValue - 20) / 80;
-        const powered = Math.pow(normalized, 2.0); 
         const minCols = 3;
         const maxCols = 10;
         const range = maxCols - minCols;
-        let cols = minCols + (powered * range);
+        let cols = minCols + (normalized * range);
         return Math.max(minCols, Math.min(maxCols, cols));
     }
 
@@ -558,19 +553,10 @@
         // Update display
         document.getElementById('zoomValue').textContent = continuousColumns.toFixed(1);
         
-        // Change grid layout with fade animation when crossing integer boundaries
+        // Change grid layout when crossing integer boundaries
         if (targetGridColumns !== currentGridColumns) {
-            // Add fade class for transition
-            container.classList.add('layout-transitioning');
-            
-            // Change layout
             currentGridColumns = targetGridColumns;
             container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
-            
-            // Remove fade class after transition
-            setTimeout(() => {
-                container.classList.remove('layout-transitioning');
-            }, 250);
         }
         
         // Calculate container width to show exact fractional columns
