@@ -44,13 +44,17 @@
         }
 
         .gallery-container {
-            width: 100%;
             padding: 0;
             display: grid;
             grid-template-columns: repeat(4, 1fr); 
             gap: 0;
             transform-origin: left top;
-            transition: transform 0.05s linear;
+            transition: width 0.08s ease-out, opacity 0.25s ease-in-out;
+            min-width: 100%;
+        }
+
+        .gallery-container.layout-transitioning {
+            opacity: 0.4;
         }
 
         .year-header {
@@ -545,7 +549,7 @@
 
     /**
      * Apple Photos-style zoom: Layout changes immediately to target column count,
-     * then scale the container to show the fractional amount of columns.
+     * then adjust container width to show the exact fractional amount of columns.
      */
     function updateZoomFromSlider(value) {
         const continuousColumns = mapSliderToColumns(value);
@@ -554,31 +558,30 @@
         // Update display
         document.getElementById('zoomValue').textContent = continuousColumns.toFixed(1);
         
-        // Change grid layout immediately when crossing integer boundaries
+        // Change grid layout with fade animation when crossing integer boundaries
         if (targetGridColumns !== currentGridColumns) {
+            // Add fade class for transition
+            container.classList.add('layout-transitioning');
+            
+            // Change layout
             currentGridColumns = targetGridColumns;
             container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
+            
+            // Remove fade class after transition
+            setTimeout(() => {
+                container.classList.remove('layout-transitioning');
+            }, 250);
         }
         
-        // Calculate scale to show the exact fractional column count
-        // If we want to show 3.5 columns but have 4 columns laid out,
-        // we scale the container to 3.5/4 = 0.875
-        const scale = continuousColumns / currentGridColumns;
+        // Calculate container width to show exact fractional columns
+        // If we want to show 3.5 columns in viewport but have 4 columns in grid:
+        // - Container width = viewport width × (4 / 3.5)
+        // - This makes each column narrower, fitting 3.5 of them in the viewport
+        const viewportWidth = galleryViewport.clientWidth;
+        const containerWidth = viewportWidth * (currentGridColumns / continuousColumns);
         
-        // Apply the transform to create smooth zoom effect
-        container.style.transform = `scale(${scale})`;
-        
-        // Adjust viewport scroll to maintain visual position
-        // This prevents jarring jumps during grid layout changes
-        if (scale !== 1) {
-            const viewportWidth = galleryViewport.clientWidth;
-            const scaledWidth = viewportWidth * scale;
-            const overflow = viewportWidth - scaledWidth;
-            // Center the scaled content
-            container.style.marginLeft = `${overflow / 2}px`;
-        } else {
-            container.style.marginLeft = '0px';
-        }
+        // Set container width - overflow-x: hidden on viewport clips the excess
+        container.style.width = `${containerWidth}px`;
     }
 
     /**
@@ -644,8 +647,10 @@
         updateStats();
         document.getElementById('zoomValue').textContent = initialContinuousColumns.toFixed(1);
         
-        // Apply initial scale
-        updateZoomFromSlider(initialSliderValue);
+        // Apply initial width and layout
+        setTimeout(() => {
+            updateZoomFromSlider(initialSliderValue);
+        }, 0);
     }
 
     // --- EVENT LISTENERS ---
