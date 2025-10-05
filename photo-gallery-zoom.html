@@ -85,14 +85,7 @@
             margin: 0;
             padding: 0;
             border: none;
-            opacity: 0;
-            transform: scale(0.92);
-            transition: transform 0.25s, opacity 0.25s; 
-        }
-
-        .photo-item.loaded {
             opacity: 1;
-            transform: scale(1);
         }
 
         .photo-item::after {
@@ -100,8 +93,8 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0);
-            transition: background 0.25s cubic-bezier(0.23, 1, 0.32, 1);
             pointer-events: none;
+            transition: background 0.2s ease;
         }
 
         .photo-item:hover::after {
@@ -109,7 +102,6 @@
         }
 
         .photo-item:hover {
-            transform: scale(1.03);
             z-index: 5;
         }
 
@@ -526,7 +518,7 @@
     let yearMarkers = []; 
     let trackpadZoomEnabled = true;
 
-    // --- SIMPLE LINEAR ZOOM LOGIC ---
+    // --- INFINITELY SMOOTH LINEAR ZOOM LOGIC ---
 
     /**
      * Maps the slider value (20-100) to continuous column count (3-10).
@@ -541,22 +533,19 @@
     }
 
     /**
-     * Smooth zoom: display fractional columns but grid layout uses rounded values.
-     * This ensures 3.9 and 4.0 have the same arrangement (both use 4-column grid).
+     * Infinitely smooth zoom: use the exact continuous column value directly.
+     * No steps, no rounding - pure linear continuous zooming.
      */
     function updateZoomFromSlider(value) {
         const continuousColumns = mapSliderToColumns(value);
-        const gridColumns = Math.round(continuousColumns);
         
-        // Update display with fractional value for smooth feedback
+        // Update display with fractional value
         document.getElementById('zoomValue').textContent = continuousColumns.toFixed(1);
         
-        // Change grid layout only when rounded value changes
-        // This means 3.5-4.4 all use 4-column layout
-        if (gridColumns !== currentGridColumns) {
-            currentGridColumns = gridColumns;
-            container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
-        }
+        // Use continuous column count directly - this creates infinitely smooth zoom
+        // CSS Grid will handle fractional values perfectly
+        currentGridColumns = continuousColumns;
+        container.style.gridTemplateColumns = `repeat(${continuousColumns}, 1fr)`;
     }
 
     /**
@@ -582,7 +571,7 @@
 
         const initialSliderValue = parseFloat(zoomSlider.value);
         const initialContinuousColumns = mapSliderToColumns(initialSliderValue);
-        currentGridColumns = Math.round(initialContinuousColumns);
+        currentGridColumns = initialContinuousColumns;
         container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
 
         Object.keys(photosByYear).sort().reverse().forEach((year, yearIdx) => {
@@ -610,10 +599,6 @@
                 
                 const currentIndex = photoIndex;
                 item.onclick = () => openLightbox(currentIndex);
-                
-                setTimeout(() => {
-                    item.classList.add('loaded');
-                }, photoIndex * 15);
                 
                 container.appendChild(item);
                 allPhotos.push(photo);
