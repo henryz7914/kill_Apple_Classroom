@@ -529,7 +529,7 @@
     // --- SIMPLE LINEAR ZOOM LOGIC ---
 
     /**
-     * Maps the slider value (20-100) to discrete integer column count (3-10).
+     * Maps the slider value (20-100) to continuous column count (3-10).
      */
     function mapSliderToColumns(sliderValue) {
         const normalized = (sliderValue - 20) / 80;
@@ -537,21 +537,24 @@
         const maxCols = 10;
         const range = maxCols - minCols;
         let cols = minCols + (normalized * range);
-        return Math.round(Math.max(minCols, Math.min(maxCols, cols)));
+        return Math.max(minCols, Math.min(maxCols, cols));
     }
 
     /**
-     * Simple zoom: directly change the grid column count.
+     * Smooth zoom: display fractional columns but grid layout uses rounded values.
+     * This ensures 3.9 and 4.0 have the same arrangement (both use 4-column grid).
      */
     function updateZoomFromSlider(value) {
-        const columns = mapSliderToColumns(value);
+        const continuousColumns = mapSliderToColumns(value);
+        const gridColumns = Math.round(continuousColumns);
         
-        // Update display
-        document.getElementById('zoomValue').textContent = columns;
+        // Update display with fractional value for smooth feedback
+        document.getElementById('zoomValue').textContent = continuousColumns.toFixed(1);
         
-        // Change grid layout
-        if (columns !== currentGridColumns) {
-            currentGridColumns = columns;
+        // Change grid layout only when rounded value changes
+        // This means 3.5-4.4 all use 4-column layout
+        if (gridColumns !== currentGridColumns) {
+            currentGridColumns = gridColumns;
             container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
         }
     }
@@ -578,8 +581,8 @@
         let photoIndex = 0;
 
         const initialSliderValue = parseFloat(zoomSlider.value);
-        const initialColumns = mapSliderToColumns(initialSliderValue);
-        currentGridColumns = initialColumns;
+        const initialContinuousColumns = mapSliderToColumns(initialSliderValue);
+        currentGridColumns = Math.round(initialContinuousColumns);
         container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
 
         Object.keys(photosByYear).sort().reverse().forEach((year, yearIdx) => {
@@ -619,7 +622,7 @@
         });
 
         updateStats();
-        document.getElementById('zoomValue').textContent = initialColumns;
+        document.getElementById('zoomValue').textContent = initialContinuousColumns.toFixed(1);
     }
 
     // --- EVENT LISTENERS ---
