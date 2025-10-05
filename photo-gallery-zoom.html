@@ -48,9 +48,7 @@
             display: grid;
             grid-template-columns: repeat(4, 1fr); 
             gap: 0;
-            transform-origin: left top;
-            transition: width 0.08s ease-out;
-            min-width: 100%;
+            width: 100%;
         }
 
         .year-header {
@@ -528,10 +526,10 @@
     let yearMarkers = []; 
     let trackpadZoomEnabled = true;
 
-    // --- APPLE PHOTOS-STYLE ZOOM LOGIC ---
+    // --- SIMPLE LINEAR ZOOM LOGIC ---
 
     /**
-     * Maps the slider value (20-100) to a linear column count (3-10).
+     * Maps the slider value (20-100) to discrete integer column count (3-10).
      */
     function mapSliderToColumns(sliderValue) {
         const normalized = (sliderValue - 20) / 80;
@@ -539,42 +537,32 @@
         const maxCols = 10;
         const range = maxCols - minCols;
         let cols = minCols + (normalized * range);
-        return Math.max(minCols, Math.min(maxCols, cols));
+        return Math.round(Math.max(minCols, Math.min(maxCols, cols)));
     }
 
     /**
-     * Apple Photos-style zoom: Layout changes immediately to target column count,
-     * then adjust container width to show the exact fractional amount of columns.
+     * Simple zoom: directly change the grid column count.
      */
     function updateZoomFromSlider(value) {
-        const continuousColumns = mapSliderToColumns(value);
-        const targetGridColumns = Math.ceil(continuousColumns);
+        const columns = mapSliderToColumns(value);
         
         // Update display
-        document.getElementById('zoomValue').textContent = continuousColumns.toFixed(1);
+        document.getElementById('zoomValue').textContent = columns;
         
-        // Change grid layout when crossing integer boundaries
-        if (targetGridColumns !== currentGridColumns) {
-            currentGridColumns = targetGridColumns;
+        // Change grid layout
+        if (columns !== currentGridColumns) {
+            currentGridColumns = columns;
             container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
         }
-        
-        // Calculate container width to show exact fractional columns
-        // If we want to show 3.5 columns in viewport but have 4 columns in grid:
-        // - Container width = viewport width × (4 / 3.5)
-        // - This makes each column narrower, fitting 3.5 of them in the viewport
-        const viewportWidth = galleryViewport.clientWidth;
-        const containerWidth = viewportWidth * (currentGridColumns / continuousColumns);
-        
-        // Set container width - overflow-x: hidden on viewport clips the excess
-        container.style.width = `${containerWidth}px`;
     }
 
     /**
      * Handles zoom control from the +/- buttons.
      */
     function changeColumns(delta) {
-        const sliderChange = delta * 5; 
+        // Calculate how much to change the slider for one column step
+        const columnStep = 80 / 7; // (100-20) / (10-3)
+        const sliderChange = delta * columnStep; 
         let newValue = parseFloat(zoomSlider.value) + sliderChange; 
         newValue = Math.max(20, Math.min(100, newValue));
         zoomSlider.value = newValue;
@@ -590,8 +578,8 @@
         let photoIndex = 0;
 
         const initialSliderValue = parseFloat(zoomSlider.value);
-        const initialContinuousColumns = mapSliderToColumns(initialSliderValue);
-        currentGridColumns = Math.ceil(initialContinuousColumns);
+        const initialColumns = mapSliderToColumns(initialSliderValue);
+        currentGridColumns = initialColumns;
         container.style.gridTemplateColumns = `repeat(${currentGridColumns}, 1fr)`;
 
         Object.keys(photosByYear).sort().reverse().forEach((year, yearIdx) => {
@@ -631,12 +619,7 @@
         });
 
         updateStats();
-        document.getElementById('zoomValue').textContent = initialContinuousColumns.toFixed(1);
-        
-        // Apply initial width and layout
-        setTimeout(() => {
-            updateZoomFromSlider(initialSliderValue);
-        }, 0);
+        document.getElementById('zoomValue').textContent = initialColumns;
     }
 
     // --- EVENT LISTENERS ---
